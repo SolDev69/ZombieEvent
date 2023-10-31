@@ -1,0 +1,8 @@
+#Main Settings
+general:
+  main-world: "survivorlobby" #main lobby (main world)
+  zombie-lobby: "zombielobby"
+  game-world: "zombie" #city map (game map)
+  game-countdown: 10 #in seconds
+  max-days: 7 #Minecraft Days (event will Run for as long as the amount of days you set)
+  event-timeupdate-soundeffect: "ENTITY_WOLF_HOWL"

@@ -1,0 +1,94 @@
+#General messages
+general:
+  survivor-prefix:
+    tag: "&d[SURVIVOR] "
+    color: "LIGHT_PURPLE"
+  zombie-prefix:
+    tag: "&2[ZOMBIE] "
+    color: "DARK_GREEN"
+  player-removed: "<player> &bhas been removed from the &dEvent!"
+  player-notfound: "&cError: Player not found."
+  event-command-usage: "&eUsage: &d/event &f<start|stop|setzombie|setsurvivor> &7&o(player)"
+  event-alreadystarted: "&eEvent has been started. Please run:\n &7'&d/event stop&7'"
+  event-game-begun-broadcast:
+    - "\n&6Game has started! &eHave fun everyone!"
+    - " &2ZOMBIES&f: &a<zombieCount>"
+    - " &dSURVIVORS&f: &e<survivorCount>"
+    - " &b<timeLeft> &fday's left until closing"
+    - "&7&m*&7&m-&7&m*&7&m*&7&m-&7&m*&7&m*&7&m-&7&m*&7&m*&7&m-&7&m*&7&m*&7&m-&7&m*&7&m*&7&m-&7&m*&7&m*&7&m-&7&m*&7&m*&7&m-&7&m*&7&m*&7&m-&7&m*&7&m*&7&m-&7&m*&7&m*&7&m-&7&m*\n"
+    - " "
+  event-commandstart-success: "&aEvent is now running. &dGame will start in: &6<countdownTime>"
+  event-forcestopped-success: "&dForcefully stopped the running Event. All has been &breset."
+  event-no-players-online: "&cCannot start the Event with no players online"
+  event-notstarted: "&cCannot stop the event if it has not been already started!"
+  event-setfail: "&cCannot change player's status if the event is not running."
+  event-commandpermission: "zombies.admin"
+  event-commanddenied: "&cYou do not have permission to do that."
+  game-over: "&cGame Over!\n&aThanks for Playing! Our Next Event details can be found via &9Discord &b(TUNE-iN)"
+  event-timeupdate: "&bTime Update: &aIt is now <currentTime>\n &7with &d<timeLeft> &eday's left"
+  player-joined-latealert: "&3&l#ZOMBIES &d<player> &ajoined late. &aWelcome them to the Event as a <role>"
+  event-title-screen-timeupdate: "&aTime Update"
+  event-subtitle-timeupdate: "<currentTime>"
+  event-broadcast-zombify: "&2<player> &ehas become &2&lZOMBIFIED! &r&bYou can run but you can't hide."
+  broadcast-event-countdown: "&dEvent &ewill begin in &d<countdownTime> seconds"
+  tracker-compass-name: "&dNearest Survivor: <distance>m"
+
+#Messages that individual player will see
+player:
+  added-to-game: "&aEvent automatically added and sent you to the Map since you are online.\n &eYou are a <role>"
+  teleport-to-mainlobby: "&aTeleported to Main Lobby Spawn"
+  teleport-to-zombielobby: "&2Teleported to Zombie's Lobby"
+  teleport-to-zombiegameworld: "&2Teleported to City."
+  set-to-survivor: "&aYou are now a Survivor."
+  set-to-zombie: "&cEEK. &2You are now Zombified."
+  joined-late: "&aEvent is already running. &bYou joined late!\n&dIt's Okay, we reserved you a spot as <role>"
+  cannot-break-zombieblocks: "&cYou cannot break blocks that have been placed by other &2Zombies"
+  cannot-openchest: "&cYou cannot open chest's during &9Night Time"
+
+#placeholders:
+# <playerCount> = Total Online Player count
+# <countdownTime> = The time before a game will start (this will show up on board when the start command is ran)
+# <zombiePrefix> = The prefix written inside messages.yml for Zombies team
+# <survivorPrefix> = The prefix written inside messages.yml for Survivors
+# <survivorCount> = Total Count of Online Survivors
+# <zombieCount> = Total Count of Online Zombies
+# <timeLeft> = Number of Days Left in the event (Minecraft Days) | Every 20 minutes (24000 ticks) = 1 day
+# <maxDays> = Max number of Days the Event will run for (Minecraft Days)
+
+scoreboard:
+  #Remember you CANNOT use any Event related Placeholders in this Main Lobby scoreboard, as the game doesn't exist yet... It will cause errors
+  main: #main lobby scoreboard for all Players to see
+    title: "     &6&lMAIN LOBBY     "
+    lines:
+      - "&7&m-----------------"
+      - "&aOnline: &f<playerCount>"
+      - " "
+      - "&aEvent Starts In"
+      - "&a<countdownTime>"
+      - "&7&m-----------------"
+
+  zombie: #zombie scoreboard that Zombies will see
+    title: "     <zombiePrefix>    "
+    lines:
+      - "&7&m-----------------"
+      - "&dDays Remaining"
+      - "&7<timeLeft>d left"
+      - " "
+      - " &3YOU ARE A ZOMBIE "
+      - " "
+      - " &d[SURVIVORS] &ex&f(<survivorCount>)"
+      - " &2[ZOMBIES] &ax&f(<zombieCount>)"
+      - "&7&m-----------------"
+
+  survivor: #survivor scoreboard that Survivors will see
+    title: "     <survivorPrefix>    "
+    lines:
+      - "&7&m-----------------"
+      - "&dDays Remaining"
+      - "&7<timeLeft>d left"
+      - " "
+      - " &dCAN YOU SURVIVE? "
+      - " "
+      - " &2[ZOMBIES] &ax&f(<zombieCount>)"
+      - " &d[SURVIVORS] &ex&f(<survivorCount>)"
+      - "&7&m-----------------"

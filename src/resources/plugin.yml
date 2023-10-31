@@ -1,0 +1,10 @@
+name: ZombieEvent
+main: me.scattermc.Zombies.Main
+version: 1.0
+api-version: 1.20
+author: ScatterMC
+description: Big Zombies event
+commands:
+  event:
+    description: Control the Zombie Event
+    usage: "/event <start|stop|setzombie|setsurvivor> (player)"
