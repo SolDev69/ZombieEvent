@@ -32,6 +32,7 @@ general:
   event-broadcast-zombify: "&2<player> &ehas become &2&lZOMBIFIED! &r&bYou can run but you can't hide."
   broadcast-event-countdown: "&dEvent &ewill begin in &d<countdownTime> seconds"
   tracker-compass-name: "&dNearest Survivor: <distance>m"
+  not-player: "&cYou are not a player."
 
 #Messages that individual player will see
 player:

@@ -12,6 +12,7 @@ import me.scattermc.Zombies.utils.PlayerUtils;
 import me.scattermc.Zombies.utils.TimeShade;
 import me.scattermc.Zombies.utils.WorldUtils;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Zombie;
@@ -79,9 +80,12 @@ public class EventGame extends BukkitRunnable {
         if(task != null && timeRemaining > 0){
             WorldUtils.setTime(TimeShade.DAY);
 
+            Bukkit.getLogger().info("This is working inside run main game..");
+
             Bukkit.getScheduler().runTaskLater(main, ()->{
                 timeRemaining-=1;
 
+                Bukkit.getLogger().info("This is working inside run 1 methods..");
                 for(Profile profiles : allPlayers){
                     Bukkit.getScheduler().runTaskTimer(Main.getInstance(), () -> {
                         WorldUtils.setTime(TimeShade.DAY);
@@ -89,6 +93,8 @@ public class EventGame extends BukkitRunnable {
                         if(isZombie(profiles)){
                             buffZombie(profiles);
                             PlayerUtils.teleportPlayer(profiles.player, LobbyType.ZOMBIE);
+
+                            Bukkit.getLogger().info("This is working inside run 2 methods..");
                         }
 
                         Bukkit.getScheduler().runTaskLater(Main.getInstance(), () -> {
@@ -97,6 +103,8 @@ public class EventGame extends BukkitRunnable {
                             if (isZombie(profiles)) {
                                 PlayerUtils.teleportPlayer(profiles.player, LobbyType.GAME);
                             }
+
+                            Bukkit.getLogger().info("This is working inside run  3..");
                         }, WorldUtils.DAY_DURATION);
                     }, 0, WorldUtils.DAY_DURATION + WorldUtils.NIGHT_DURATION);
 
@@ -114,6 +122,8 @@ public class EventGame extends BukkitRunnable {
 
                     String updateSound = main.files().getConfig().get().getString("general.event-timeupdate-soundeffect");
                     profiles.player.playSound(profiles.player.getLocation(), Sound.valueOf(updateSound), 2f, 2f);
+
+                    Bukkit.getLogger().info("This is working inside run 4 methods..");
                 }
             }, interval);
         }
@@ -161,7 +171,7 @@ public class EventGame extends BukkitRunnable {
 
                                 List<Profile> zombiesList = new ArrayList<>();
                                 zombiesList.add(allPlayersList.get(0));
-                                zombiesList.forEach(EventGame.this::setZombie);
+                                setZombie(zombiesList.get(0));
 
                                 Message.of("general.event-game-begun-broadcast")
                                         .placeholders(ImmutableMap.of(
@@ -171,6 +181,7 @@ public class EventGame extends BukkitRunnable {
                                         .send(profiles.player);
 
                                 sendPlayerToGame(profiles);
+                                WorldUtils.setTime(TimeShade.DAY);
                             }
                         }
                     }
@@ -219,12 +230,10 @@ public class EventGame extends BukkitRunnable {
         if(zombies.hasEntry(name)){
             zombies.removeEntry(name);
             survivors.addEntry(name);
+            if(zombieCount <= 0) return;
+            zombieCount-=1;
         }else{
             survivors.addEntry(name);
-        }
-
-        if(zombieCount >= 1){
-            zombieCount-=1;
         }
 
         survivorCount+=1;
@@ -234,18 +243,29 @@ public class EventGame extends BukkitRunnable {
     public void setZombie(Profile profile) {
         String name = profile.player.getName();
         World world = profile.player.getWorld();
-//        Zombie npc = (Zombie) world.spawnEntity(profile.player.getLocation(), EntityType.ZOMBIE);
+
+        Random random = new Random();
+        double coord = random.nextDouble(1, world.getSpawnLocation().getX());
+        int randomCount = main.files().getConfig().get().getInt("general.zombie-npc-maxcount");
+
+        Location npcSpawn = new Location(world, coord, coord, coord);
+
+        for(int i = 0; i < random.nextInt(1, randomCount); ++i){
+            Zombie npc = (Zombie) world.spawnEntity(npcSpawn, EntityType.ZOMBIE);
+            npc.setAI(true);
+            npc.setCanBreakDoors(true);
+            npc.setAware(true);
+            npc.setRemoveWhenFarAway(false);
+        }
 
         if(zombies.hasEntry(name)) return;
         if(survivors.hasEntry(name)){
             survivors.removeEntry(name);
             zombies.addEntry(name);
+            if(survivorCount <= 0) return;
+            survivorCount-=1;
         }else{
             zombies.addEntry(name);
-        }
-
-        if(survivorCount >= 1){
-            survivorCount-=1;
         }
 
         zombieCount+=1;
@@ -260,7 +280,7 @@ public class EventGame extends BukkitRunnable {
         TrackCompass trackCompass = new TrackCompass(main, main.manager().getEventManager());
         main.getServer().getPluginManager().registerEvents(trackCompass, main);
 
-        profile.player.getInventory().addItem(trackCompass.getCompass());
+        profile.player.getInventory().setItem(0, trackCompass.getCompass());
     }
     public void removePlayer(Profile profile){
         String name = profile.player.getName();
@@ -275,9 +295,11 @@ public class EventGame extends BukkitRunnable {
 
         if(isSurvivor(profile)){
             survivors.removeEntry(name);
+            if(survivorCount <= 0) return;
             survivorCount-=1;
         }else if(isZombie(profile)){
             zombies.removeEntry(name);
+            if(zombieCount <= 0) return;
             zombieCount-=1;
         }
 
@@ -392,6 +414,20 @@ public class EventGame extends BukkitRunnable {
     }
     public int getSurvivorCount() {
         return survivorCount;
+    }
+    public void setSurvivorCount(int survivorCount) {
+        if(survivorCount <= 0){
+            this.survivorCount = 0;
+            return;
+        }
+        this.survivorCount = survivorCount;
+    }
+    public void setZombieCount(int zombieCount){
+        if(zombieCount <= 0){
+            this.zombieCount = 0;
+            return;
+        }
+        this.zombieCount = zombieCount;
     }
     public EventState getEventState() {
         return eventState;

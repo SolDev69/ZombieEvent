@@ -42,7 +42,7 @@ public class Main extends JavaPlugin {
             Player player = profile.player;
             String name = player.getName();
 
-            for(Team teams : Objects.requireNonNull(Bukkit.getScoreboardManager()).getMainScoreboard().getTeams()){
+            for(Team teams : Objects.requireNonNull(Bukkit.getScoreboardManager()).getMainScoreboard().getTeams()){ //clear teams
                 if(teams.hasEntry(name)){
                     teams.removeEntry(name);
                 }

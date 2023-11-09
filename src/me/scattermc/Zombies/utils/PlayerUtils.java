@@ -19,7 +19,6 @@ public class PlayerUtils {
                         if (world != null) {
                             player.teleport(world.getSpawnLocation());
                             Message.of("player.teleport-to-mainlobby").send(player);
-                            Bukkit.getLogger().info("DEBUG ++: "+"should have teleported player");
                         }
                     }
                 }

@@ -102,6 +102,9 @@ public class EventCommand implements CommandExecutor, TabExecutor {
                             Message.of("&cError: &2" + targetProfile.player.getName() + " &cis already a &2ZOMBIE").send(sender);
                             return true;
                         }
+                        int survivorCount = eventGame.getSurvivorCount();
+
+                        eventGame.setSurvivorCount(survivorCount - 1);
                         eventGame.setZombie(targetProfile);
                     }else if(subCommand.equalsIgnoreCase("setsurvivor")){
                         if(eventGame.getEventState() != EventState.STARTED){
@@ -115,6 +118,9 @@ public class EventCommand implements CommandExecutor, TabExecutor {
                             Message.of("&cError: &d" + targetProfile.player.getName() + " &cis already a &dSURVIVOR").send(sender);
                             return true;
                         }
+                        int zombieCount = eventGame.getZombieCount();
+
+                        eventGame.setZombieCount(zombieCount - 1);
                         eventGame.setSurvivor(targetProfile);
                     }
                 }
@@ -191,6 +197,9 @@ public class EventCommand implements CommandExecutor, TabExecutor {
                         Message.of("&cError: &2" + targetProfile.player.getName() + " &cis already a &2ZOMBIE").send(player);
                         return true;
                     }
+                    int survivorCount = eventGame.getSurvivorCount();
+
+                    eventGame.setSurvivorCount(survivorCount - 1);
                     eventGame.setZombie(targetProfile);
                 }else if(subCommand.equalsIgnoreCase("setsurvivor")){
                     if(eventGame.getEventState() != EventState.STARTED){
@@ -204,6 +213,9 @@ public class EventCommand implements CommandExecutor, TabExecutor {
                         Message.of("&cError: &d" + targetProfile.player.getName() + " &cis already a &dSURVIVOR").send(sender);
                         return true;
                     }
+                    int zombieCount = eventGame.getZombieCount();
+
+                    eventGame.setZombieCount(zombieCount - 1);
                     eventGame.setSurvivor(targetProfile);
                 }
             }

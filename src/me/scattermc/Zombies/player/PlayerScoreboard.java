@@ -46,11 +46,13 @@ public class PlayerScoreboard {
 
                 if(eventGame.getEventState() == EventState.WAITING || eventGame.getEventState() == EventState.STOPPED) {
                     String formattedTime = eventGame.getCountdownFormatted();
+                    int countdownTime = eventGame.getCountdownTime();
+                    int configTime = main.files().getConfig().get().getInt("general.game-countdown");
 
                     List<String> lines = Message.of("scoreboard.main.lines")
                             .placeholders(ImmutableMap.of(
                                     "<playerCount>", String.valueOf(Bukkit.getOnlinePlayers().size()),
-                                    "<countdownTime>", Message.color(formattedTime))).toList();
+                                    "<countdownTime>", (countdownTime == configTime) ? Message.color("&dWaiting") : Message.color(formattedTime))).toList();
 
                     for (int i = 0; i < lines.size(); ++i) {
                         board.removeLine(i);

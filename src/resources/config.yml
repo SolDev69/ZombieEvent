@@ -6,3 +6,5 @@ general:
   game-countdown: 10 #in seconds
   max-days: 7 #Minecraft Days (event will Run for as long as the amount of days you set)
   event-timeupdate-soundeffect: "ENTITY_WOLF_HOWL"
+  zombie-npc-maxcount: 50 #will randomly pick a number from 1-50 to spawn this amount in random location for each zombie.
+  track-maxrange: 100 #100 blocks the compass will track up to

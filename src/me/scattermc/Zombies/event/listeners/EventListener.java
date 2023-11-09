@@ -16,6 +16,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
@@ -92,6 +93,17 @@ public class EventListener implements Listener {
                 }
             } else {
                 e.setCancelled(false);
+            }
+        }
+    }
+    @EventHandler
+    public void onZombieHitZombiePlayer(EntityDamageByEntityEvent e){
+        if(!(e.getDamager() instanceof Player && e.getEntity() instanceof Player)){
+            Player player = (Player) e.getEntity();
+            Profile profile = main.manager().getProfiles().getDataPlayer(player);
+
+            if(profile.isPlaying() && eventGame.isZombie(profile)){
+                e.setCancelled(true);
             }
         }
     }

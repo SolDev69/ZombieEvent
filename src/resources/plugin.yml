@@ -8,3 +8,6 @@ commands:
   event:
     description: Control the Zombie Event
     usage: "/event <start|stop|setzombie|setsurvivor> (player)"
+  worldname:
+    description: Get a world's name..
+    aliases: [wm, checkworld]

@@ -7,10 +7,8 @@ import me.scattermc.Zombies.event.EventGame;
 import me.scattermc.Zombies.event.EventManager;
 import me.scattermc.Zombies.event.EventState;
 import me.scattermc.Zombies.player.Profile;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -19,26 +17,34 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
-import java.util.Objects;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class TrackCompass extends BukkitRunnable implements Listener {
     private final Main main;
     private ItemStack compass;
     private ItemMeta meta;
+    private BukkitTask task;
     private final EventManager eventManager;
     private final EventGame eventGame;
+    private Map<UUID, Double> distanceMap;
     public TrackCompass(Main main, EventManager eventManager){
         this.main = main;
         this.eventManager = main.manager().getEventManager();
         this.eventGame = eventManager.getEvent();
+        this.distanceMap = new HashMap<>();
 
         this.compass = new ItemStack(Material.COMPASS);
         this.meta = compass.getItemMeta();
 
         if(meta != null) {
-            meta.setDisplayName(Message.of("general.tracker-compass-name").toString());
+            String updatedItemName = Message.of("general.tracker-compass-name").placeholders(
+                    ImmutableMap.of("<distance>", String.valueOf(0D))).toString();
+
+            meta.setDisplayName(updatedItemName);
         }
 
         compass.setItemMeta(meta);
@@ -56,69 +62,52 @@ public class TrackCompass extends BukkitRunnable implements Listener {
         if(eventGame.getEventState() == EventState.STARTED){
             if(eventGame.isZombie(zombie)) {
                 if (mainHand.isSimilar(compass) || offHand.isSimilar(compass)) {
-                    super.runTaskTimer(main, 20L, 20L);
-                } else {
-                    if (!super.isCancelled()) {
-                        super.cancel();
+                    if(task == null) {
+                        task = super.runTaskTimer(main, 20L, 20L);
                     }
                 }
             }
         }
     }
-
     @Override
     public void run() {
         for (Player player : main.getServer().getOnlinePlayers()) {
-            UUID closestPlayerUid = this.getClosestSurvivor(player.getLocation(), player.getUniqueId());
+            double maxRange = main.files().getConfig().get().getDouble("general.track-maxrange");
+            Player nearest = getNearestPlayer(player, maxRange);
+            Profile nearestPro = main.manager().getProfiles().getDataPlayer(nearest);
 
-            if (closestPlayerUid != null) {
-                Location closestPlayerLoc = getSurvivorFromUID(closestPlayerUid).getLocation();
-                player.setCompassTarget(closestPlayerLoc);
-            }
-        }
-    }
-
-    private UUID getClosestSurvivor(Location loc, UUID exceptPlayerId) {
-        if (Objects.requireNonNull(loc.getWorld()).getEnvironment() != World.Environment.NORMAL) {
-            return null;
-        }
-        UUID closestSurvivor = null;
-        double distanceToClosestSurvivor = 0.0D;
-        double xLoc = loc.getX();
-        double yLoc = loc.getY();
-
-        for (Profile survivors : main.manager().getProfiles().getDataPlayers()) {
-            if(!eventGame.isSurvivor(survivors)) break;
-            Player survivor = survivors.player;
-
-            if (survivor.getUniqueId() != exceptPlayerId && survivor.getGameMode() != GameMode.SPECTATOR) {
-                double p2xLoc = survivor.getLocation().getX();
-                double p2yLoc = survivor.getLocation().getY();
-                double distance = Math.sqrt((p2yLoc - yLoc) * (p2yLoc - yLoc) + (p2xLoc - xLoc) * (p2xLoc - xLoc));
-
-                if (closestSurvivor == null) {
-                    distanceToClosestSurvivor = distance;
-                    closestSurvivor = survivor.getUniqueId();
-                } else {
-                    if (distance < distanceToClosestSurvivor) {
-                        distanceToClosestSurvivor = distance;
-                        closestSurvivor = survivor.getUniqueId();
-                    }
-                }
-
+            if (nearest != null && eventGame.isSurvivor(nearestPro)) { //check only survivors
+                double distance = distanceMap.get(player.getUniqueId());
                 String updatedItemName = Message.of("general.tracker-compass-name").placeholders(
-                        ImmutableMap.of("<distance>", String.valueOf(distanceToClosestSurvivor))).toString();
+                        ImmutableMap.of("<distance>", Double.toString(distance))).toString();
 
                 meta.setDisplayName(updatedItemName);
                 compass.setItemMeta(meta);
+                player.setCompassTarget(nearest.getLocation());
             }
         }
-
-        return closestSurvivor;
     }
+    public Player getNearestPlayer(Player player, double range) {
+        double distance = Double.POSITIVE_INFINITY;
+        Player target = null;
 
-    private Player getSurvivorFromUID(UUID uid) {
-        return main.getServer().getPlayer(uid);
+        for (Entity entity : player.getNearbyEntities(range, range, range)) {
+            if (!(entity instanceof Player)) continue;
+            if (entity == player) continue;
+
+            Profile self = main.manager().getProfiles().getDataPlayer(player);
+            Profile nearest = main.manager().getProfiles().getDataPlayer((Player) entity);
+            if(eventGame.isZombie(nearest) || eventGame.isZombie(self)) continue; //skip zombies
+            double distanceTo = player.getLocation().distance(entity.getLocation());
+
+            if (distanceTo < distance) {
+                distance = distanceTo;
+                target = (Player) entity;
+            }
+
+            distanceMap.put(player.getUniqueId(), distance);
+        }
+        return target;
     }
     public ItemStack getCompass() {
         return compass;
