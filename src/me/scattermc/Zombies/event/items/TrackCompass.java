@@ -30,27 +30,26 @@ public class TrackCompass extends BukkitRunnable implements Listener {
     private BukkitTask task;
     private final EventManager eventManager;
     private final EventGame eventGame;
-    private Map<UUID, Double> distanceMap;
+    private Map<UUID, Double> playerMap;
+
     public TrackCompass(Main main, EventManager eventManager){
         this.main = main;
         this.eventManager = main.manager().getEventManager();
         this.eventGame = eventManager.getEvent();
-        this.distanceMap = new HashMap<>();
+        this.playerMap = new HashMap<>();
 
         this.compass = new ItemStack(Material.COMPASS);
         this.meta = compass.getItemMeta();
 
-        if(meta != null) {
-            String updatedItemName = Message.of("general.tracker-compass-name").placeholders(
-                    ImmutableMap.of("<distance>", String.valueOf(0D))).toString();
-
-            meta.setDisplayName(updatedItemName);
-        }
-
         compass.setItemMeta(meta);
     }
     @EventHandler
-    public void onPlayerItemHeld(PlayerItemHeldEvent e){
+    public void onPlayerItemHeld(PlayerItemHeldEvent e) {
+        if(meta != null) {
+            String updatedItemName = Message.of("general.tracker-compass-name").placeholders((Map<String, String>) new HashMap<>().put("<distance>", "0D")).toString();
+
+            meta.setDisplayName(updatedItemName);
+        }
         Player player = e.getPlayer();
         Profile zombie = main.manager().getProfiles().getDataPlayer(player);
 
@@ -77,7 +76,7 @@ public class TrackCompass extends BukkitRunnable implements Listener {
             Profile nearestPro = main.manager().getProfiles().getDataPlayer(nearest);
 
             if (nearest != null && eventGame.isSurvivor(nearestPro)) { //check only survivors
-                double distance = distanceMap.get(player.getUniqueId());
+                double distance = playerMap.get(player.getUniqueId());
                 String updatedItemName = Message.of("general.tracker-compass-name").placeholders(
                         ImmutableMap.of("<distance>", Double.toString(distance))).toString();
 
@@ -105,7 +104,7 @@ public class TrackCompass extends BukkitRunnable implements Listener {
                 target = (Player) entity;
             }
 
-            distanceMap.put(player.getUniqueId(), distance);
+            playerMap.put(player.getUniqueId(), distance);
         }
         return target;
     }

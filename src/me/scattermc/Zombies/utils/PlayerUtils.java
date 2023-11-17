@@ -45,7 +45,7 @@ public class PlayerUtils {
                     }
                 }
             }
-        }else{
+        } else {
             Message.of("&cError occurred trying to teleport player to &b" + lobbyType + " world").send(Bukkit.getConsoleSender());
         }
     }

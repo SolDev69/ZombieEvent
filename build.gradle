@@ -56,6 +56,6 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.28'
 }
 
-shadowJar {
-    destinationDir = file('C:\\Users\\fleek\\Desktop\\Test Server\\lobby\\plugins')
-}
+//shadowJar {
+//    destinationDir = file('C:\\Users\\fleek\\Desktop\\Test Server\\lobby\\plugins')
+//}
